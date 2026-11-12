@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101410">
+<meta name="description" content="FACEUP – private Gesichtskarte, Pflege-Routinen und Streaks.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>FACEUP</title>
+<style>
+:root{color-scheme:dark;--bg:#101410;--panel:#1d271e;--panel2:#263629;--text:#edf5e9;--muted:#a9bba8;--green:#a5e69a;--line:#405140}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:760px;margin:auto;padding:18px 16px 44px}.brand{display:flex;align-items:center;justify-content:space-between;margin:8px 0 18px}.brand h1{font-size:30px;letter-spacing:2px;margin:0;color:#d7f5d2}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:16px}button,.tab{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:11px 8px;font-weight:650;cursor:pointer}button.primary{background:#345b39;border-color:#527e55}button:disabled{opacity:.45;cursor:not-allowed}.tab.active{background:#345b39;border-color:#527e55}
+.panel{background:var(--panel);border:1px solid #304031;border-radius:18px;padding:16px;margin:12px 0}.muted{color:var(--muted);font-size:13px;line-height:1.45}.hero{font-size:22px;font-weight:750;margin:0 0 5px}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}.cameraBox{position:relative;background:#080b08;border-radius:14px;overflow:hidden;min-height:220px;display:grid;place-items:center}.cameraBox video,.cameraBox img,.cameraBox canvas{width:100%;height:auto;display:block}.cameraBox canvas{position:absolute;inset:0}.cameraBox video{transform:scaleX(-1)}.cameraBox canvas{transform:scaleX(-1)}.cameraPlaceholder{padding:28px;text-align:center;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.actions button{flex:1;min-width:130px}.areaGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.area{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left}.area.selected{outline:2px solid var(--green)}.area b{display:block}.area span{font-size:12px;color:var(--muted)}.hidden{display:none!important}label.file{display:inline-flex;align-items:center;justify-content:center;background:var(--panel);border:1px solid var(--line);padding:11px;border-radius:12px;flex:1;cursor:pointer;font-weight:650}input[type=file]{display:none}input[type=checkbox]{accent-color:#8bd28a;width:18px;height:18px}li{margin:8px 0}.progress{height:8px;background:#344435;border-radius:20px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--green);width:0}.note{border-left:3px solid #8bd28a;padding:9px 12px;background:#202b21;border-radius:6px;color:#d5e5d1;font-size:13px}.stat{font-size:28px;font-weight:800;color:var(--green)}footer{color:var(--muted);font-size:11px;text-align:center;margin-top:22px}
+</style>
+</head>
+<body>
+<main>
+<header class="brand"><div><h1>FACEUP.</h1><small>YOUR PERSONAL FACE CARE APP</small></div><span style="color:var(--green);font-size:12px;font-weight:700">BETA · FREE</span></header>
+<nav>
+<button class="tab active" data-tab="scan">Scan</button><button class="tab" data-tab="map">Face Map</button><button class="tab" data-tab="routine">Routine</button><button class="tab" data-tab="streak">Streak</button>
+</nav>
+
+<section id="scan" class="view">
+<div class="panel">
+<p class="hero">Dein Gesichtsscan</p>
+<p class="muted">Erkennt sichtbare Gesichtspunkte zur Orientierung. Das Foto wird in deinem Browser verarbeitet und nicht an FACEUP hochgeladen. Keine Attraktivitätsnote und keine Diagnose.</p>
+<div class="cameraBox" id="cameraBox"><div class="cameraPlaceholder" id="placeholder">Starte die Kamera oder wähle ein Foto aus.</div><video id="video" autoplay playsinline class="hidden"></video><img id="photo" class="hidden" alt="Ausgewähltes Foto"><canvas id="overlay"></canvas></div>
+<div class="actions"><button class="primary" id="startCamera">Kamera starten</button><label class="file">Foto auswählen<input type="file" id="file" accept="image/*"></label></div>
+<div class="actions"><button id="scanBtn" disabled>Gesichtspunkte erkennen</button><button id="stopCamera">Kamera stoppen</button></div>
+<p class="muted" id="status" aria-live="polite">Für den ersten Scan wird eine kleine Erkennungsdatei aus dem Internet geladen. Die Bildanalyse läuft anschließend lokal im Browser.</p>
+<div class="note">Hinweis: Bitte verwende ein neutrales Foto bei gutem Licht. Ein einzelnes Selfie kann Gesichtsform und Proportionen nicht zuverlässig bewerten.</div>
+</div>
+<div class="panel hidden" id="scanResult"><b>Erkannte Orientierungspunkte</b><p class="muted" id="landmarkText"></p></div>
+</section>
+
+<section id="map" class="view hidden">
+<div class="panel"><p class="hero">Face Map</p><p class="muted">Wähle einen Bereich, um seine Anatomie und eine sichere Pflegeidee zu sehen.</p>
+<div class="areaGrid" id="areas"></div><div class="panel" style="margin-bottom:0;background:#263629"><b id="areaTitle">Wangenknochen</b><p class="muted" id="areaDesc">Die knöcherne Struktur seitlich unterhalb der Augen.</p><b>Pflegeidee</b><p class="muted" id="areaTip">Sanfte Hautpflege und Sonnenschutz.</p></div>
+</div></section>
+
+<section id="routine" class="view hidden">
+<div class="panel"><p class="hero">Deine Tagesroutine</p><p class="muted">Hake nur ab, was du erledigt hast. Die Liste wird auf diesem Gerät gespeichert.</p><div class="stat" id="taskCount">0/6</div><div class="progress"><i id="taskProgress"></i></div><div id="tasks"></div><button class="primary" id="resetTasks" style="width:100%;margin-top:12px">Tagesliste zurücksetzen</button></div>
+</section>
+
+<section id="streak" class="view hidden">
+<div class="panel"><p class="hero">Deine Streak</p><div class="stat"><span id="streakNum">0</span> Tage</div><p class="muted">Schließe deine Routine ab, um einen Tag zu zählen. Die Streak wird lokal auf diesem Gerät gespeichert.</p><button class="primary" id="finishDay" style="width:100%">Heutigen Tag abschließen</button><p class="muted" id="streakMsg"></p></div>
+</section>
+<footer>FACEUP · PRIVAT & KOSTENLOS · Keine Attraktivitätsbewertung</footer>
+</main>
+<script type="module">
+const $=s=>document.querySelector(s);
+const areas=[
+["Wangenknochen","Die knöcherne Struktur seitlich unterhalb der Augen.","Sanfte Hautpflege und täglicher Sonnenschutz. Übungen verändern die Knochenform nicht nachweislich."],
+["Kieferpartie","Der Unterkiefer bildet die seitliche Kontur des unteren Gesichts.","Kiefer locker lassen und nicht dauerhaft zusammenbeißen."],
+["Kinn","Das Kinn ist der vordere Teil des Unterkiefers.","Eine entspannte Kopf- und Nackenhaltung ist sinnvoll."],
+["Augenpartie","Augenlider, Augenbrauen und der Bereich unter den Augen.","Augen nicht reiben; regelmäßiger Schlaf kann helfen."],
+["Stirn","Der obere Gesichtsbereich oberhalb der Augenbrauen.","Milde Reinigung und Sonnenschutz."],
+["Gesichtsproportionen","Abstände und Lageverhältnisse zwischen sichtbaren Gesichtspunkten.","Individuelle Unterschiede sind normal und keine Bewertung."]
+];
+let selected=0,stream=null,landmarker=null,lastImage=null;
+const taskNames=["Morgens sanft reinigen","Feuchtigkeitscreme verwenden","Sonnenschutz SPF 30+","Haare pflegen","Abends sanft reinigen","Kiefer und Nacken entspannen"];
+const today=()=>new Date().toISOString().slice(0,10);
+let done=JSON.parse(localStorage.getItem("faceup_done")||"[]");
+let streak=Number(localStorage.getItem("faceup_streak")||0);
+let lastDay=localStorage.getItem("faceup_lastday")||"";
+function showTab(name){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("hidden",x.id!==name));document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===name));}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function renderAreas(){const el=$("#areas");el.innerHTML="";areas.forEach((a,i)=>{const b=document.createElement("button");b.className="area"+(i===selected?" selected":"");b.innerHTML=`<b>${a[0]}</b><span>Details ansehen</span>`;b.onclick=()=>{selected=i;renderAreas();};el.append(b);});$("#areaTitle").textContent=areas[selected][0];$("#areaDesc").textContent=areas[selected][1];$("#areaTip").textContent=areas[selected][2];}
+function renderTasks(){const el=$("#tasks");el.innerHTML="";taskNames.forEach((t,i)=>{const l=document.createElement("label");l.style.cssText="display:flex;gap:10px;align-items:center;padding:12px 2px;border-bottom:1px solid #344435";const c=document.createElement("input");c.type="checkbox";c.checked=done.includes(i);c.onchange=()=>{done=c.checked?[...done,i]:done.filter(x=>x!==i);localStorage.setItem("faceup_done",JSON.stringify(done));renderTasks();};const s=document.createElement("span");s.textContent=t;s.style.flex="1";l.append(c,s);el.append(l);});$("#taskCount").textContent=done.length+"/6";$("#taskProgress").style.width=(done.length/6*100)+"%";}
+function renderStreak(){$("#streakNum").textContent=streak;$("#streakMsg").textContent=lastDay===today()?"Heute bereits abgeschlossen.":"";}
+$("#resetTasks").onclick=()=>{done=[];localStorage.setItem("faceup_done","[]");renderTasks();};
+$("#finishDay").onclick=()=>{if(!done.length){$("#streakMsg").textContent="Erledige zuerst mindestens eine Aufgabe.";return;}if(lastDay===today()){$("#streakMsg").textContent="Heute bereits gezählt.";return;}const y=new Date(Date.now()-86400000).toISOString().slice(0,10);streak=lastDay===y?streak+1:1;lastDay=today();localStorage.setItem("faceup_streak",String(streak));localStorage.setItem("faceup_lastday",lastDay);renderStreak();};
+async function loadModel(){if(landmarker)return landmarker;$("#status").textContent="Gesichtserkennung wird geladen …";const {FaceLandmarker,FilesetResolver}=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");const files=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");landmarker=await FaceLandmarker.createFromOptions(files,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate:"CPU"},runningMode:"IMAGE",numFaces:1});return landmarker;}
+function clearOverlay(){const c=$("#overlay"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);}
+function drawPoints(result,w,h){const c=$("#overlay"),ctx=c.getContext("2d");c.width=w;c.height=h;ctx.clearRect(0,0,w,h);const pts=result.faceLandmarks?.[0]||[];ctx.fillStyle="#a5e69a";pts.forEach((p,i)=>{if(i%3===0){ctx.beginPath();ctx.arc(p.x*w,p.y*h,2.1,0,Math.PI*2);ctx.fill();}});return pts;}
+async function scan(source){try{$("#scanBtn").disabled=true;const model=await loadModel();const r=model.detect(source);const w=source.videoWidth||source.naturalWidth,h=source.videoHeight||source.naturalHeight;const pts=drawPoints(r,w,h);if(!pts.length){$("#status").textContent="Kein Gesicht erkannt. Versuche ein Foto mit gutem Licht und Blickrichtung zur Kamera.";$("#scanResult").classList.add("hidden");}else{$("#status").textContent="Gesichtspunkte erkannt. Die Punkte sind Orientierungshilfen, keine Messung von Schönheit oder Gesundheit." ;$("#scanResult").classList.remove("hidden");$("#landmarkText").textContent=`${pts.length} Orientierungspunkte erkannt. Sie zeigen die Lage von Augen, Nase, Mund und Gesichtskontur. Die Gesichtskarte unten erklärt die Bereiche.`;} }catch(e){$("#status").textContent="Scan nicht verfügbar: "+e.message+" Prüfe deine Internetverbindung und lade die Seite erneut.";}finally{$("#scanBtn").disabled=false;}}
+$("#startCamera").onclick=async()=>{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});const v=$("#video");v.srcObject=stream;v.classList.remove("hidden");$("#photo").classList.add("hidden");$("#placeholder").classList.add("hidden");await v.play();$("#scanBtn").disabled=false;$("#scanBtn").onclick=()=>scan(v);$("#status").textContent="Kamera bereit. Tippe auf „Gesichtspunkte erkennen“."; }catch(e){$("#status").textContent="Kamera nicht verfügbar. Erlaube den Kamerazugriff oder wähle ein Foto aus.";}}
+$("#stopCamera").onclick=()=>{if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$("#video").classList.add("hidden");$("#status").textContent="Kamera gestoppt.";};
+$("#file").onchange=e=>{const f=e.target.files[0];if(!f)return;const img=$("#photo");img.src=URL.createObjectURL(f);img.onload=()=>{lastImage=img;img.classList.remove("hidden");$("#video").classList.add("hidden");$("#placeholder").classList.add("hidden");$("#scanBtn").disabled=false;$("#scanBtn").onclick=()=>scan(img);$("#status").textContent="Foto geladen. Tippe auf „Gesichtspunkte erkennen“.";};};
+renderAreas();renderTasks();renderStreak();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>
